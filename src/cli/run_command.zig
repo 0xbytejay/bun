@@ -1241,6 +1241,10 @@ pub const RunCommand = struct {
         Output.flush();
     }
 
+    pub fn zigbootAndHandleError(ctx: Command.Context, path: string, loader: ?bun.options.Loader) bool {
+        return _bootAndHandleError(ctx, path, loader);
+    }
+
     fn _bootAndHandleError(ctx: Command.Context, path: string, loader: ?bun.options.Loader) bool {
         Global.configureAllocator(.{ .long_running = true });
         Run.boot(ctx, ctx.allocator.dupe(u8, path) catch return false, loader) catch |err| {

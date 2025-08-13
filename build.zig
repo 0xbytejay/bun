@@ -42,6 +42,8 @@ const BunBuildOptions = struct {
     os: OperatingSystem,
     arch: Arch,
 
+    build_static_library: bool = false,
+
     version: Version,
     canary_revision: ?u32,
     sha: []const u8,
@@ -272,6 +274,7 @@ pub fn build(b: *Build) !void {
         .tracy_callstack_depth = b.option(u16, "tracy_callstack_depth", "") orelse 10,
         .enable_logs = b.option(bool, "enable_logs", "Enable logs in release") orelse false,
         .enable_asan = b.option(bool, "enable_asan", "Enable asan") orelse false,
+        .build_static_library = b.option(bool, "build_static_library", "...") orelse false,
     };
 
     // zig build obj
@@ -573,8 +576,13 @@ pub fn addBunObject(b: *Build, opts: *BunBuildOptions) *Compile {
     bun.addImport("bun", bun); // allow circular "bun" import
     addInternalImports(b, bun, opts);
 
+    const root_source_file = if (opts.build_static_library)
+        b.path("src/libbun.zig")
+    else
+        b.path("src/main.zig");
+
     const root = b.createModule(.{
-        .root_source_file = b.path("src/main.zig"),
+        .root_source_file = root_source_file,
 
         // Root module gets compilation flags. Forwarded as default to dependencies.
         .target = opts.target,

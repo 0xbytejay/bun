@@ -123,6 +123,7 @@ optionx(CMAKE_BUILD_PARALLEL_LEVEL STRING "The number of parallel build jobs" DE
 
 setx(CWD ${CMAKE_SOURCE_DIR})
 setx(BUILD_PATH ${CMAKE_BINARY_DIR})
+set(STATIC_LIB_LIST "")
 
 optionx(CACHE_PATH FILEPATH "The path to the cache directory" DEFAULT ${BUILD_PATH}/cache)
 optionx(CACHE_STRATEGY "read-write|read-only|write-only|none" "The strategy to use for caching" DEFAULT "read-write")
@@ -845,7 +846,18 @@ function(register_cmake_command)
   # >| mimalloc/CMakeFiles/mimalloc-obj.dir/src/static.c.o
   # >| ld: 287 duplicate symbols for architecture arm64
   if(NOT BUN_LINK_ONLY OR NOT MAKE_ARTIFACTS MATCHES "static.c.o")
-    target_link_libraries(${bun} PRIVATE ${MAKE_ARTIFACTS})
+  #---  Add libraries to static lib list ---
+    foreach(lib IN LISTS MAKE_ARTIFACTS)
+      list(APPEND STATIC_LIB_LIST ${lib})
+      set(STATIC_LIB_LIST "${STATIC_LIB_LIST}" PARENT_SCOPE)
+      message(STATUS " -- Added ${lib} to static lib list")
+    endforeach()
+  #---  End of adding libraries to static lib list ---
+    if(BUILD_STATIC_LIBRARY)
+      # target_sources(${bun} PUBLIC ${MAKE_ARTIFACTS})
+    else()
+      target_link_libraries(${bun} PRIVATE ${MAKE_ARTIFACTS})
+    endif()
   endif()
 
   if(BUN_LINK_ONLY)

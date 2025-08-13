@@ -22,6 +22,12 @@ set(bunExe ${bun}${CMAKE_EXECUTABLE_SUFFIX})
 if(bunStrip)
   set(bunStripExe ${bunStrip}${CMAKE_EXECUTABLE_SUFFIX})
   set(buns ${bun} ${bunStrip})
+
+  if(BUILD_STATIC_LIBRARY)
+    set(bunExe  ${CMAKE_STATIC_LIBRARY_PREFIX}${bun}${CMAKE_STATIC_LIBRARY_SUFFIX})
+    set(bunStripExe  ${CMAKE_STATIC_LIBRARY_PREFIX}${bunStrip}${CMAKE_STATIC_LIBRARY_SUFFIX})
+  endif()
+
 else()
   set(buns ${bun})
 endif()
@@ -591,6 +597,7 @@ register_command(
       -Dtarget=${ZIG_TARGET}
       -Doptimize=${ZIG_OPTIMIZE}
       -Dcpu=${ZIG_CPU}
+      -Dbuild_static_library=$<IF:$<BOOL:${BUILD_STATIC_LIBRARY}>,true,false>
       -Denable_logs=$<IF:$<BOOL:${ENABLE_LOGS}>,true,false>
       -Denable_asan=$<IF:$<BOOL:${ENABLE_ASAN}>,true,false>
       -Dversion=${VERSION}
@@ -693,7 +700,11 @@ endif()
 set(BUN_CPP_OUTPUT ${BUILD_PATH}/${CMAKE_STATIC_LIBRARY_PREFIX}${bun}${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 if(BUN_LINK_ONLY)
-  add_executable(${bun} ${BUN_CPP_OUTPUT} ${BUN_ZIG_OUTPUT} ${WINDOWS_RESOURCES})
+   if(BUILD_STATIC_LIBRARY)
+    add_library(${bun} STATIC ${BUN_CPP_OUTPUT} ${BUN_ZIG_OUTPUT} ${WINDOWS_RESOURCES})
+  else()
+    add_executable(${bun} ${BUN_CPP_OUTPUT} ${BUN_ZIG_OUTPUT} ${WINDOWS_RESOURCES})
+  endif()
   set_target_properties(${bun} PROPERTIES LINKER_LANGUAGE CXX)
   target_link_libraries(${bun} PRIVATE ${BUN_CPP_OUTPUT})
 elseif(BUN_CPP_ONLY)
@@ -711,8 +722,12 @@ elseif(BUN_CPP_ONLY)
       ${BUN_CPP_OUTPUT}
   )
 else()
-  add_executable(${bun} ${BUN_CPP_SOURCES} ${WINDOWS_RESOURCES})
-  target_link_libraries(${bun} PRIVATE ${BUN_ZIG_OUTPUT})
+  if(BUILD_STATIC_LIBRARY)
+    add_library(${bun} STATIC ${BUN_CPP_SOURCES} ${BUN_ZIG_OUTPUT} ${WINDOWS_RESOURCES})
+  else()
+    add_executable(${bun} ${BUN_CPP_SOURCES} ${WINDOWS_RESOURCES})
+    target_link_libraries(${bun} PRIVATE ${BUN_ZIG_OUTPUT})
+  endif()
 endif()
 
 if(NOT bun STREQUAL "bun")
@@ -1209,18 +1224,45 @@ if(NOT BUN_CPP_ONLY)
       ${TEST_BUN_COMMAND_ENV_WRAP} ${TEST_BUN_COMMAND_BASE})
   endif()
 
-  register_command(
-    TARGET
-      ${bun}
-    TARGET_PHASE
-      POST_BUILD
-    COMMENT
-      "Testing ${bun}"
-    COMMAND
-      ${TEST_BUN_COMMAND}
-    CWD
-      ${BUILD_PATH}
-  )
+  #--- Copy static library to output dir ---
+  if(BUILD_STATIC_LIBRARY)
+    #Copy cpp libraries to output dir
+    foreach(lib IN LISTS STATIC_LIB_LIST)
+      add_custom_command(
+        TARGET ${bun}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${lib} ${STATIC_LIB_OUTPUT_DESTINATION}
+        COMMAND ${CMAKE_COMMAND} -E echo "Copy ${lib} to ${STATIC_LIB_OUTPUT_DESTINATION}"
+        COMMENT "Copy cpp libraries to output dir"
+      )
+    endforeach()
+
+    #Copy zig libraries to output dir
+    add_custom_command(
+        TARGET ${bun}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${bunStripExe} ${STATIC_LIB_OUTPUT_DESTINATION}
+        COMMAND ${CMAKE_COMMAND} -E echo "Copy ${bunStripExe} to ${STATIC_LIB_OUTPUT_DESTINATION}"
+        COMMENT "Copy zig libraries to output dir"
+    )
+  endif()
+  #--- End copy static library to output dir ---
+
+  if(NOT BUILD_STATIC_LIBRARY)
+    register_command(
+      TARGET
+        ${bun}
+      TARGET_PHASE
+        POST_BUILD
+      COMMENT
+        "Testing ${bun}"
+      COMMAND
+        ${TEST_BUN_COMMAND}
+      CWD
+        ${BUILD_PATH}
+    )
+  endif()
+
 
   if(CI)
     set(BUN_FEATURES_SCRIPT ${CWD}/scripts/features.mjs)

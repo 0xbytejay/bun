@@ -80,12 +80,20 @@ endif()
 
 setx(WEBKIT_NAME bun-webkit-${WEBKIT_OS}-${WEBKIT_ARCH}${WEBKIT_SUFFIX})
 set(WEBKIT_FILENAME ${WEBKIT_NAME}.tar.gz)
-setx(WEBKIT_DOWNLOAD_URL https://github.com/oven-sh/WebKit/releases/download/autobuild-${WEBKIT_VERSION}/${WEBKIT_FILENAME})
+#setx(WEBKIT_DOWNLOAD_URL https://github.com/oven-sh/WebKit/releases/download/autobuild-${WEBKIT_VERSION}/${WEBKIT_FILENAME})
+setx(WEBKIT_DOWNLOAD_URL http://192.168.3.13:8000/bun-webkit-linux-amd64.tar.gz)
+
+function(add_webkit_libs_to_global_list)
+  file(GLOB WEBKIT_LIBS ${WEBKIT_PATH}/lib/*.a)
+  list(APPEND STATIC_LIB_LIST ${WEBKIT_LIBS})
+  set(STATIC_LIB_LIST "${STATIC_LIB_LIST}" PARENT_SCOPE)
+endfunction()
 
 if(EXISTS ${WEBKIT_PATH}/package.json)
   file(READ ${WEBKIT_PATH}/package.json WEBKIT_PACKAGE_JSON)
 
   if(WEBKIT_PACKAGE_JSON MATCHES ${WEBKIT_VERSION})
+    add_webkit_libs_to_global_list()
     return()
   endif()
 endif()
@@ -95,6 +103,7 @@ file(ARCHIVE_EXTRACT INPUT ${CACHE_PATH}/${WEBKIT_FILENAME} DESTINATION ${CACHE_
 file(REMOVE ${CACHE_PATH}/${WEBKIT_FILENAME})
 file(REMOVE_RECURSE ${WEBKIT_PATH})
 file(RENAME ${CACHE_PATH}/bun-webkit ${WEBKIT_PATH})
+add_webkit_libs_to_global_list()
 
 if(APPLE)
   file(REMOVE_RECURSE ${WEBKIT_INCLUDE_PATH}/unicode)

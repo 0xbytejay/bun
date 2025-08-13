@@ -179,3 +179,8 @@ optionx(USE_WEBKIT_ICU BOOL "Use the ICU libraries from WebKit" DEFAULT ${DEFAUL
 optionx(ERROR_LIMIT STRING "Maximum number of errors to show when compiling C++ code" DEFAULT "100")
 
 list(APPEND CMAKE_ARGS -DCMAKE_EXPORT_COMPILE_COMMANDS=ON)
+
+string(TOLOWER ${CMAKE_HOST_SYSTEM_NAME}/${CMAKE_HOST_SYSTEM_PROCESSOR} STATIC_LIB_OUTPUT_DESTINATION_BY_ARCH)
+optionx(BUILD_STATIC_LIBRARY BOOL "Build as a static library (using libbun.zig)" DEFAULT OFF)
+optionx(STATIC_LIB_OUTPUT_DESTINATION STRING "Build as a static library (using libbun.zig)" DEFAULT  ${BUILD_PATH}/output/libs/${STATIC_LIB_OUTPUT_DESTINATION_BY_ARCH})
+file(MAKE_DIRECTORY "${STATIC_LIB_OUTPUT_DESTINATION}")

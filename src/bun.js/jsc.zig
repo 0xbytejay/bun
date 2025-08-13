@@ -6,6 +6,8 @@
 //! TODO: Remove remaining aliases to `webcore` and `api`
 
 /// The calling convention used for JavaScript functions <> Native
+///
+const builtin = @import("builtin");
 pub const conv = if (bun.Environment.isWindows and bun.Environment.isX64)
     std.builtin.CallingConvention.SysV
 else
@@ -18,7 +20,12 @@ pub const wtf = @import("bindings/WTF.zig").WTF;
 pub fn initialize(eval_mode: bool) void {
     markBinding(@src());
     bun.analytics.Features.jsc += 1;
-    JSCInitialize(std.os.environ.ptr, std.os.environ.len, onJSCInvalidEnvVar, eval_mode);
+
+    const is_exe = comptime builtin.output_mode == .Exe;
+
+    const _envc = if (is_exe) std.os.environ.len else 0;
+
+    JSCInitialize(std.os.environ.ptr, _envc, onJSCInvalidEnvVar, eval_mode);
 }
 
 pub const JSValue = @import("bindings/JSValue.zig").JSValue;

@@ -30,6 +30,7 @@
     "bd": "BUN_DEBUG_QUIET_LOGS=1 bun --silent bd:v",
     "build:debug": "bun scripts/glob-sources.mjs > /dev/null && bun ./scripts/build.mjs -GNinja -DCMAKE_BUILD_TYPE=Debug -B build/debug",
     "build:debug:asan": "bun ./scripts/build.mjs -GNinja -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON -B build/debug-asan",
+    "build:lib:release": "bun ./scripts/build.mjs -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_STATIC_LIBRARY=ON -B build/release",
     "build:release": "bun ./scripts/build.mjs -GNinja -DCMAKE_BUILD_TYPE=Release -B build/release",
     "build:ci": "bun ./scripts/build.mjs -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=ON -DCI=true -B build/release-ci --verbose --fresh",
     "build:assert": "bun ./scripts/build.mjs -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DENABLE_ASSERTIONS=ON -DENABLE_LOGS=ON -B build/release-assert",
