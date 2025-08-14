@@ -80,8 +80,7 @@ endif()
 
 setx(WEBKIT_NAME bun-webkit-${WEBKIT_OS}-${WEBKIT_ARCH}${WEBKIT_SUFFIX})
 set(WEBKIT_FILENAME ${WEBKIT_NAME}.tar.gz)
-#setx(WEBKIT_DOWNLOAD_URL https://github.com/oven-sh/WebKit/releases/download/autobuild-${WEBKIT_VERSION}/${WEBKIT_FILENAME})
-setx(WEBKIT_DOWNLOAD_URL http://192.168.3.13:8000/bun-webkit-linux-amd64.tar.gz)
+setx(WEBKIT_DOWNLOAD_URL https://github.com/oven-sh/WebKit/releases/download/autobuild-${WEBKIT_VERSION}/${WEBKIT_FILENAME})
 
 function(add_webkit_libs_to_global_list)
   file(GLOB WEBKIT_LIBS ${WEBKIT_PATH}/lib/*.a)

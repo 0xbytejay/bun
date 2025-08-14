@@ -63,14 +63,16 @@ export fn run_js_with_bun() void {
 
     var log_: logger.Log = logger.Log.init(bun.default_allocator);
 
-    const result = bun.cli.Command.init(bun.default_allocator, &log_, .RunCommand);
+    const result = bun.CLI.Command.init(bun.default_allocator, &log_, .RunCommand);
     if (result) |ctx| {
         ctx.args.target = .bun;
-        _ = bun.cli.RunCommand.zigbootAndHandleError(ctx, "/root/dev/bun-bun-v1.2.19/go_demo/index.js", .js);
+        _ = bun.CLI.RunCommand.zigbootAndHandleError(ctx, "/root/dev/bun-bun-v1.2.19/go_demo/index.js", .js);
     } else |err| {
         std.debug.print("Init Context Failed: {}\n", .{err});
     }
 
+    bun.CLI.Cli.start(bun.default_allocator);
+    bun.Global.exit(0);
     // bun.CLI.Cli.start(bun.default_allocator);
     // bun.Global.exit(0);
 }

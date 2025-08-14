@@ -854,7 +854,7 @@ function(register_cmake_command)
     endforeach()
   #---  End of adding libraries to static lib list ---
     if(BUILD_STATIC_LIBRARY)
-      # target_sources(${bun} PUBLIC ${MAKE_ARTIFACTS})
+      target_sources(${bun} PRIVATE ${MAKE_ARTIFACTS})
     else()
       target_link_libraries(${bun} PRIVATE ${MAKE_ARTIFACTS})
     endif()

@@ -56,6 +56,6 @@ register_command(
 )
 
 target_link_libraries(${bun} PRIVATE ${LOLHTML_LIBRARY})
-if(BUN_LINK_ONLY)
+if(BUN_LINK_ONLY OR BUILD_STATIC_LIBRARY)
   target_sources(${bun} PRIVATE ${LOLHTML_LIBRARY})
 endif()

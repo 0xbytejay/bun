@@ -635,6 +635,7 @@ src/jsc_stub.zig
 src/json_parser.zig
 src/libarchive/libarchive-bindings.zig
 src/libarchive/libarchive.zig
+src/libbun.zig
 src/linear_fifo.zig
 src/linker.zig
 src/linux.zig
