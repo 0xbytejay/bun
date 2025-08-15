@@ -14,13 +14,13 @@ const js_ast = bun.JSAst;
 const Command = @import("cli.zig").Command;
 const transpiler = bun.transpiler;
 const which = @import("which.zig").which;
-const JSC = bun.JSC;
+pub const JSC = bun.JSC;
 const AsyncHTTP = bun.http.AsyncHTTP;
 const Arena = @import("./allocators/mimalloc_arena.zig").Arena;
 const DNSResolver = @import("bun.js/api/bun/dns_resolver.zig").DNSResolver;
 
 const OpaqueWrap = JSC.OpaqueWrap;
-const VirtualMachine = JSC.VirtualMachine;
+pub const VirtualMachine = JSC.VirtualMachine;
 
 var run: Run = undefined;
 pub const Run = struct {

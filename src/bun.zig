@@ -2123,6 +2123,21 @@ fn appendOptionsEnv(env: []const u8, args: *std.ArrayList([:0]const u8), allocat
     }
 }
 
+pub fn initFromCArgv(allocator: std.mem.Allocator, argv_ptr: *[3]usize) !void {
+    const argv_data: [*]const [*:0]const u8 = @ptrFromInt(argv_ptr[0]);
+    const argv_len = argv_ptr[1]; // length
+
+    argv = try allocator.alloc([:0]const u8, argv_len);
+
+    for (0..@intCast(argv_len)) |i| {
+        argv[i] = std.mem.span(argv_data[i]);
+    }
+
+    for (argv) |arg| {
+        std.debug.print("Arg: {s}\n", .{arg});
+    }
+}
+
 pub fn initArgv(allocator: std.mem.Allocator) !void {
     if (comptime Environment.isPosix) {
         argv = try allocator.alloc([:0]const u8, std.os.argv.len);

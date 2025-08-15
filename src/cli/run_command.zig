@@ -24,7 +24,7 @@ const transpiler = bun.transpiler;
 
 const DotEnv = @import("../env_loader.zig");
 const which = @import("../which.zig").which;
-const Run = @import("../bun_js.zig").Run;
+pub const Run = @import("../bun_js.zig").Run;
 var path_buf: bun.PathBuffer = undefined;
 var path_buf2: bun.PathBuffer = undefined;
 const NpmArgs = struct {

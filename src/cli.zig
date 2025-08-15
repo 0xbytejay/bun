@@ -14,9 +14,9 @@ const File = bun.sys.File;
 
 const debug = Output.scoped(.CLI, true);
 
-const Api = @import("api/schema.zig").Api;
+pub const Api = @import("api/schema.zig").Api;
 const clap = bun.clap;
-const BunJS = @import("./bun_js.zig");
+pub const BunJS = @import("./bun_js.zig");
 const Install = @import("./install/install.zig");
 const RunCommand_ = @import("./cli/run_command.zig").RunCommand;
 const FilterRun = @import("./cli/filter_run.zig");
