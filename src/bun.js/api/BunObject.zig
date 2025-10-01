@@ -8,6 +8,7 @@
 /// - Run `bun run build`
 pub const BunObject = struct {
     // --- Callbacks ---
+    pub const registerCallback = toJSCallback(Bun.registerCallback);
     pub const allocUnsafe = toJSCallback(Bun.allocUnsafe);
     pub const build = toJSCallback(Bun.JSBundler.buildFn);
     pub const color = toJSCallback(bun.css.CssColor.jsFunctionColor);
@@ -142,6 +143,7 @@ pub const BunObject = struct {
         // --- Getters --
 
         // -- Callbacks --
+        @export(&BunObject.registerCallback, .{ .name = callbackName("registerCallback") });
         @export(&BunObject.allocUnsafe, .{ .name = callbackName("allocUnsafe") });
         @export(&BunObject.build, .{ .name = callbackName("build") });
         @export(&BunObject.color, .{ .name = callbackName("color") });
@@ -1176,6 +1178,50 @@ pub export fn Bun__escapeHTML8(globalObject: *JSC.JSGlobalObject, input_value: J
 comptime {
     _ = Bun__escapeHTML8;
     _ = Bun__escapeHTML16;
+}
+
+extern fn RegisterJSCallback(vm: *bun.JSC.JSGlobalObject, symbolName: [*:0]const u8, funcPtr: *anyopaque) callconv(.C) bun.JSC.JSValue;
+
+pub fn registerCallback(globalThis: *JSC.JSGlobalObject, callframe: *JSC.CallFrame) bun.JSError!JSC.JSValue {
+    const arguments_ = callframe.arguments_old(2);
+    const arguments = arguments_.ptr[0..arguments_.len];
+
+    const red = "\x1b[31m";
+    const reset = "\x1b[0m";
+
+    if (arguments.len != 2) {
+        std.debug.print(
+            "{s}Error:{s} Missing required arguments! Expected 2 arguments, but got {d}.\n",
+            .{ red, reset, arguments.len },
+        );
+        return bun.JSError.JSError;
+    }
+
+    if (!arguments[0].isString()) {
+        std.debug.print("{s}Error:{s} Argument[0] must be a string.\n", .{ red, reset });
+        return bun.JSError.JSError;
+    }
+
+    if (!arguments[1].isNumber()) {
+        std.debug.print("{s}Error:{s} Argument[1] must be a usize (callback function pointer).\n", .{ red, reset });
+        return bun.JSError.JSError;
+    }
+
+    const nameBunString = arguments[0].toBunString(globalThis) catch |err| {
+        std.debug.print("{s}Error:{s} Failed to convert callback function name to ZigString: {}\n", .{ red, reset, err });
+        return bun.JSError.JSError;
+    };
+
+    defer nameBunString.deref();
+
+    const name = nameBunString.encode(JSC.Node.Encoding.utf8);
+    const funcPtr: *anyopaque = @ptrFromInt(arguments[1].asPtrAddress());
+
+    const allocator = std.heap.page_allocator;
+    const nameZ = try allocator.dupeZ(u8, name);
+    defer allocator.free(nameZ);
+
+    return RegisterJSCallback(globalThis, nameZ, funcPtr);
 }
 
 pub fn allocUnsafe(globalThis: *JSC.JSGlobalObject, callframe: *JSC.CallFrame) bun.JSError!JSC.JSValue {

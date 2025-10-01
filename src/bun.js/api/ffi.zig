@@ -812,6 +812,7 @@ pub const FFI = struct {
 
     pub fn callback(globalThis: *JSGlobalObject, interface: JSC.JSValue, js_callback: JSC.JSValue) bun.JSError!JSValue {
         JSC.markBinding(@src());
+
         if (!interface.isObject()) {
             return globalThis.toInvalidArguments("Expected object", .{});
         }
@@ -848,6 +849,7 @@ pub const FFI = struct {
             .compiled => {
                 const function_ = bun.default_allocator.create(Function) catch unreachable;
                 function_.* = func.*;
+
                 return JSValue.createObject2(
                     globalThis,
                     ZigString.static("ptr"),

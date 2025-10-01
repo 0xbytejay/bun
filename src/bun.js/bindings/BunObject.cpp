@@ -716,6 +716,7 @@ JSC_DEFINE_HOST_FUNCTION(functionFileURLToPath, (JSC::JSGlobalObject * globalObj
     s3                                             BunObject_getter_wrap_s3                                            DontDelete|PropertyCallback
     CSRF                                           BunObject_getter_wrap_CSRF                                          DontDelete|PropertyCallback
     allocUnsafe                                    BunObject_callback_allocUnsafe                                      DontDelete|Function 1
+    registerCallback                               BunObject_callback_registerCallback                                     DontDelete|Function 1
     argv                                           BunObject_getter_wrap_argv                                          DontDelete|PropertyCallback
     build                                          BunObject_callback_build                                            DontDelete|Function 1
     concatArrayBuffers                             functionConcatTypedArrays                                           DontDelete|Function 3

@@ -19,6 +19,8 @@ endif()
 
 set(bunExe ${bun}${CMAKE_EXECUTABLE_SUFFIX})
 
+set(bunLib ${CMAKE_STATIC_LIBRARY_PREFIX}${bun}${CMAKE_STATIC_LIBRARY_SUFFIX})
+
 if(bunStrip)
   set(bunStripExe ${bunStrip}${CMAKE_EXECUTABLE_SUFFIX})
   set(buns ${bun} ${bunStrip})
@@ -26,6 +28,7 @@ if(bunStrip)
   if(BUILD_STATIC_LIBRARY)
     set(bunExe  ${CMAKE_STATIC_LIBRARY_PREFIX}${bun}${CMAKE_STATIC_LIBRARY_SUFFIX})
     set(bunStripExe  ${CMAKE_STATIC_LIBRARY_PREFIX}${bunStrip}${CMAKE_STATIC_LIBRARY_SUFFIX})
+    set(bunLib  ${bunStripExe})
   endif()
 
 else()
@@ -1228,21 +1231,27 @@ if(NOT BUN_CPP_ONLY)
   if(BUILD_STATIC_LIBRARY)
     #Copy cpp libraries to output dir
     foreach(lib IN LISTS STATIC_LIB_LIST)
+      set(STRIP_CMD)
+      if(NOT DEBUG)
+          get_filename_component(LIB_NAME "${lib}" NAME)
+          set(STRIP_CMD ${CMAKE_COMMAND} -E  echo "Strip ${STATIC_LIB_OUTPUT_DESTINATION}/${LIB_NAME}" && ${CMAKE_STRIP} ${STATIC_LIB_OUTPUT_DESTINATION}/${LIB_NAME} ${CMAKE_STRIP_FLAGS} --strip-all --strip-debug --discard-all -o ${STATIC_LIB_OUTPUT_DESTINATION}/${LIB_NAME})
+      endif()
       add_custom_command(
         TARGET ${bun}
         POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${lib} ${STATIC_LIB_OUTPUT_DESTINATION}
         COMMAND ${CMAKE_COMMAND} -E echo "Copy ${lib} to ${STATIC_LIB_OUTPUT_DESTINATION}"
-        COMMENT "Copy cpp libraries to output dir"
+        COMMAND ${CMAKE_COMMAND} -E copy ${lib} ${STATIC_LIB_OUTPUT_DESTINATION}
+        COMMAND ${STRIP_CMD}
       )
     endforeach()
+
 
     #Copy zig libraries to output dir
     add_custom_command(
         TARGET ${bun}
         POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${bunStripExe} ${STATIC_LIB_OUTPUT_DESTINATION}
-        COMMAND ${CMAKE_COMMAND} -E echo "Copy ${bunStripExe} to ${STATIC_LIB_OUTPUT_DESTINATION}"
+        COMMAND ${CMAKE_COMMAND} -E copy ${bunLib} ${STATIC_LIB_OUTPUT_DESTINATION}
+        COMMAND ${CMAKE_COMMAND} -E echo "Copy ${bunLib} to ${STATIC_LIB_OUTPUT_DESTINATION}"
         COMMENT "Copy zig libraries to output dir"
     )
   endif()

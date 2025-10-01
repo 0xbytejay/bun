@@ -285,6 +285,7 @@ pub const Run = struct {
         vm.onUnhandledRejection = &onUnhandledRejectionBeforeClose;
 
         this.addConditionalGlobals();
+
         do_redis_preconnect: {
             // This must happen within the API lock, which is why it's not in the "doPreconnect" function
             if (this.ctx.runtime_options.redis_preconnect) {

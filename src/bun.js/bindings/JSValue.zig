@@ -2379,7 +2379,7 @@ const JSError = bun.JSError;
 
 const ZigString = JSC.ZigString;
 const VM = JSC.VM;
-const FFI = @import("./FFI.zig");
+pub const FFI = @import("./FFI.zig");
 const JSPromise = JSC.JSPromise;
 const JSGlobalObject = JSC.JSGlobalObject;
 const JSString = JSC.JSString;

@@ -39,6 +39,7 @@
 
 // --- Callbacks ---
 #define FOR_EACH_CALLBACK(macro) \
+    macro(registerCallback) \
     macro(allocUnsafe) \
     macro(braces) \
     macro(build) \

@@ -29,6 +29,7 @@ pub fn initialize(eval_mode: bool) void {
 }
 
 pub const JSValue = @import("bindings/JSValue.zig").JSValue;
+pub const FFI = @import("bindings/JSValue.zig").FFI;
 
 // Host functions are the native function pointer type that can be used by a
 // JSC::JSFunction to call native code from JavaScript. To allow usage of `try`
